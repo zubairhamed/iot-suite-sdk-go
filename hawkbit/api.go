@@ -12,6 +12,10 @@ const (
 	STATUS_RESULT_FAILED  = ResultStatus("failed")
 )
 
+type Connection interface {
+
+}
+
 type HawkbitClient interface {
 	UseProxy(proxy string) error
 	UpdateActionStatus(string, ExecStatus, ResultStatus) error

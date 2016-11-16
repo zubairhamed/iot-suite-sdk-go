@@ -3,69 +3,102 @@ package main
 import (
 	"github.com/zubairhamed/iot-suite-sdk-go/hawkbit/ddi"
 	"github.com/zubairhamed/iot-suite-sdk-go/hawkbit/examples"
-	"github.com/zubairhamed/iot-suite-sdk-go/hawkbit"
-	"log"
+	. "github.com/zubairhamed/iot-suite-sdk-go/hawkbit"
 	"fmt"
 	"sync"
 )
 
 func main() {
-	var TENANT_ID = "xx"
-	var TARGET_ID = "xx"
-	var TARGET_SECURITY_TOKEN = "xx"
+	var TENANT_ID = ""
+	var TARGET_ID = ""
+	var TARGET_SECURITY_TOKEN = ""
 
-	client := ddi.NewDefaultHawkbitClient(example.HAWKBIT_HTTP_ENDPOINT,
+	fmt.Println("Connecting to Hawkbit..")
+
+	conn, err := ddi.Dial(example.HAWKBIT_HTTP_ENDPOINT,
 		TENANT_ID,
 		TARGET_ID,
-		TARGET_SECURITY_TOKEN)
+		TARGET_SECURITY_TOKEN,
+		nil,
+	)
 
-	client.OnUpdate(UpdateCallback)
-	fmt.Println("Connecting to Hawkbit..")
-	client.Start()
-	fmt.Println("Waiting for updates..")
-}
+	if err != nil {
+		fmt.Println("Uh oh, error occured connecting to HawkBit..")
+		panic(err.Error())
+	}
 
-func UpdateCallback(client hawkbit.HawkbitClient, actionId string) {
-	fmt.Println("@@@@@@ An update was found. Let's update!")
+	updateEvents := make(chan *Message)
 
-	// Tell the mothership that we're proceeding to update
-	client.UpdateActionStatus(actionId, hawkbit.STATUS_EXEC_PROCEEDING, hawkbit.STATUS_RESULT_NONE)
+	poll := 3
+	fmt.Println("Waiting for updates.. Polling set to", poll, "seconds")
+	conn.WaitForUpdates(updateEvents, poll)
 
-	// Get all downloadable chunks for this update
-	chunks := client.GetDownloadableChunks()
-
-	// Do some parallel downloading
-	var wg sync.WaitGroup
-	for _, c := range chunks {
-		fmt.Println("Downloading chunk part", c.Part, ", name", c.Name, "and version", c.Version)
-
-		wg.Add(len(c.Artifacts))
-		for _, a := range c.Artifacts {
-			downloadHref := a.Links.DownloadHttp.Href
-			fileName := a.Filename
-
-			// dereference pointer
-			artifact := *a
-
-			// Download artifact binaries
-			go func() {
-				defer wg.Done()
-				log.Println("<<<<<< Downloading Artifact", fileName, " @ ", downloadHref)
-				if client.DownloadArtifact(&artifact) == nil {
-					log.Println("++++++ Downloaded HawkBit Artifact ", fileName, "of size", len(artifact.Content))
-				} else {
-					log.Println("Uh oh, we failed to download an artifact..", fileName, " @ ", downloadHref)
-				}
-			}()
+	for {
+		select {
+		case updateMsg, _ := <- updateEvents:
+			handleUpdateEvent(conn, updateMsg)
 		}
 	}
+}
+
+func handleUpdateEvent(conn *ddi.HawkbitDDIConnection, msg *Message) {
+	fmt.Println("@@@@@@@@ An update was found. Let's update!")
+
+	actionId := msg.ActionId
+
+	// Tell the mothership that we're proceeding to update
+	conn.UpdateActionStatus(actionId, STATUS_EXEC_PROCEEDING, STATUS_RESULT_NONE)
+
+	// Create a channel to be notified which artifact is going to be downloaded
+	downloadingCh := make(chan Artifact)
+
+	// Create a channel to be notified of downloaded artifacts
+	downloadedCh := make(chan Artifact)
+
+	// Download all artifacts, specifying to download artifacts in parallel
+	totalArtifacts, err := conn.DownloadArtifacts(downloadingCh, downloadedCh, true)
+	if err != nil {
+		// Something happened trying to download artifacts..
+		// OMG! Exit in panic!!
+		panic(err.Error())
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(totalArtifacts)
+
+	// An array to store all our downloaded content
+	downloadedArtifacts := []Artifact{}
+
+	// Wait for notifications of artifact downloads, run this in a goroutine
+	go func() {
+		for {
+			select {
+			case artifact := <-downloadingCh:
+				fmt.Println(">>>>>>>> Downloading HawkBit Artifact ", artifact.Filename, "from", artifact.Links.DownloadHttp.Href)
+
+			case artifact := <-downloadedCh:
+				// When an artifact has been completed, save its content to an array
+				fmt.Println("<<<<<<<< Downloaded HawkBit Artifact  ", artifact.Filename, "of size", len(artifact.Content), "bytes")
+				downloadedArtifacts = append(downloadedArtifacts, artifact)
+				wg.Done()
+			}
+		}
+	}()
+
+	// Wait for completion of downloads
 	wg.Wait()
+	fmt.Println("@@@@@@@@ Download of artifacts completed.")
 
-	fmt.Println("Download all completed.")
-	startUpdating()
+	// With all the content of artifacts we've collected, let's start an update
+	startUpdating(conn, actionId, downloadedArtifacts)
 }
 
-func startUpdating() {
-	fmt.Println("Start doing some fancy updates..")
-}
+func startUpdating(conn *ddi.HawkbitDDIConnection, actionId string, a []Artifact) {
+	fmt.Println("@@@@@@@@ Got", len(a), "artifacts. Start doing some fancy updates with them ..")
 
+	// Tell mothership that all's good and update was a success.
+	// If update failed, use this instead:
+	//	    client.UpdateActionStatus(actionId, hawkbit.STATUS_EXEC_CLOSED, hawkbit.STATUS_RESULT_FAILED)
+	conn.UpdateActionStatus(actionId, STATUS_EXEC_CLOSED, STATUS_RESULT_SUCCESS)
+	fmt.Println("@@@@@@@@ Update completed. Waiting for next update..")
+}
