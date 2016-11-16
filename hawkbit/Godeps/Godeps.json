@@ -1,0 +1,26 @@
+{
+	"ImportPath": "github.com/zubairhamed/iot-suite-sdk-go/hawkbit",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v74",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/sdobz/go-mpg123",
+			"Rev": "77d4d76881d81c1c547859b006002a7ae6e53d60"
+		},
+		{
+			"ImportPath": "golang.org/x/mobile/exp/audio",
+			"Rev": "ed036a869f333e824f4e287e75d236d7afb58972"
+		},
+		{
+			"ImportPath": "golang.org/x/mobile/exp/audio/al",
+			"Rev": "ed036a869f333e824f4e287e75d236d7afb58972"
+		},
+		{
+			"ImportPath": "golang.org/x/mobile/internal/mobileinit",
+			"Rev": "ed036a869f333e824f4e287e75d236d7afb58972"
+		}
+	]
+}
