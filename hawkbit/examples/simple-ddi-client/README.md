@@ -1,0 +1,1 @@
+This is a very simple, minimalistic example using the HawkBit DDI API to poll and when an update is found, to download the related artifacts.
