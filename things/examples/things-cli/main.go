@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/zubairhamed/iot-suite-things-go/examples/things-cli/cmd"
+import "github.com/spf13/cobra/cobra/cmd"
 
 func main() {
 	cmd.Execute()
