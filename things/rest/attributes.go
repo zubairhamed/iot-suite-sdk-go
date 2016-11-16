@@ -3,7 +3,7 @@ package rest
 import (
 	"encoding/json"
 	"io/ioutil"
-	. "github.com/zubairhamed/iot-suite-sdk-go.bak/things"
+	. "github.com/zubairhamed/iot-suite-sdk-go/things"
 )
 
 func (c ThingsRestConnection) GetAttribute(id, path string) (attr interface{}, err error) {

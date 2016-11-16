@@ -9,7 +9,7 @@ import (
 	"net/url"
 
 	"strings"
-	. "github.com/zubairhamed/iot-suite-sdk-go.bak/things"
+	. "github.com/zubairhamed/iot-suite-sdk-go/things"
 )
 
 func (c ThingsRestConnection) Get(ids string) (ts []*Thing, err error) {

@@ -7,9 +7,9 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"fmt"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/things"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/things/ws"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/things/client"
+	"github.com/zubairhamed/iot-suite-sdk-go/things"
+	"github.com/zubairhamed/iot-suite-sdk-go/things/ws"
+	"github.com/zubairhamed/iot-suite-sdk-go/things/client"
 )
 
 var username, password, token, proxy, endpoint, thingId, file, content string

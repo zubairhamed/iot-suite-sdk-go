@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	. "github.com/zubairhamed/iot-suite-sdk-go.bak/things"
+	. "github.com/zubairhamed/iot-suite-sdk-go/things"
 )
 
 func (c ThingsRestConnection) ListRelations() (r []*Relation, err error) {

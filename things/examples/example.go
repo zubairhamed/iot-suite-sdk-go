@@ -1,6 +1,6 @@
 package examples
 
-import "github.com/zubairhamed/iot-suite-sdk-go.bak/things/client"
+import "github.com/zubairhamed/iot-suite-sdk-go/things/client"
 
 // For IoT Things
 var ENDPOINT_URL_REST = "https://things-int.apps.bosch-iot-cloud.com"

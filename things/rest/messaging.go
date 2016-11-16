@@ -1,6 +1,6 @@
 package rest
 
-import . "github.com/zubairhamed/iot-suite-sdk-go.bak/things"
+import . "github.com/zubairhamed/iot-suite-sdk-go/things"
 
 func (c ThingsRestConnection) Claim(id string, payload interface{}, payloadType byte) (interface{}, error) {
 	// POST /things/{thingId}/inbox/claim

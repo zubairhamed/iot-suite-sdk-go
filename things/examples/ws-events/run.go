@@ -2,10 +2,10 @@ package main
 
 import (
 	"log"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/things/client"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/things/ws"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/things/examples"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/things"
+	"github.com/zubairhamed/iot-suite-sdk-go/things/client"
+	"github.com/zubairhamed/iot-suite-sdk-go/things/ws"
+	"github.com/zubairhamed/iot-suite-sdk-go/things/examples"
+	"github.com/zubairhamed/iot-suite-sdk-go/things"
 )
 
 func main() {

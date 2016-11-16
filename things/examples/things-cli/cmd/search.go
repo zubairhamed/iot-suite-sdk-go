@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"log"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/things"
+	"github.com/zubairhamed/iot-suite-sdk-go/things"
 )
 
 // searchCmd represents the search command

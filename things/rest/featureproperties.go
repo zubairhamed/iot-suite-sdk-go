@@ -1,6 +1,6 @@
 package rest
 
-import . "github.com/zubairhamed/iot-suite-sdk-go.bak/things"
+import . "github.com/zubairhamed/iot-suite-sdk-go/things"
 
 func (c ThingsRestConnection) ListFeatureProperties(id, featureId string) (map[string]interface{}, error) {
 	// GET /things/{thingId}/features/{featureId}/properties

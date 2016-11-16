@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"fmt"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/things"
+	"github.com/zubairhamed/iot-suite-sdk-go/things"
 )
 
 var subCmd = &cobra.Command{

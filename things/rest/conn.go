@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"net/url"
 	"crypto/tls"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/things/client"
-	. "github.com/zubairhamed/iot-suite-sdk-go.bak/things"
+	"github.com/zubairhamed/iot-suite-sdk-go/things/client"
+	. "github.com/zubairhamed/iot-suite-sdk-go/things"
 )
 
 func Dial(ep, user, pass, token string, cfg *client.Configuration) (RestConnection, error) {

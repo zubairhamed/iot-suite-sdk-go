@@ -13,8 +13,8 @@ import (
 	"errors"
 	"time"
 	"net/url"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/things/client"
-	. "github.com/zubairhamed/iot-suite-sdk-go.bak/things"
+	"github.com/zubairhamed/iot-suite-sdk-go/things/client"
+	. "github.com/zubairhamed/iot-suite-sdk-go/things"
 )
 
 func Dial(ep, user, pass, token string, cfg *client.Configuration) (WebSocketConnection, error) {
