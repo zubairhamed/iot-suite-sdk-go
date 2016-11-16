@@ -2,6 +2,17 @@ package hawkbit
 
 import "strings"
 
+// REFACTOR START
+type Configuration struct {
+
+}
+
+type Message struct {
+	ActionId string
+}
+
+// REFACTOR END
+
 type Action struct {
 	Config struct {
 		Polling struct {

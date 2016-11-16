@@ -3,86 +3,79 @@ package main
 import (
 	"github.com/zubairhamed/iot-suite-sdk-go/hawkbit/ddi"
 	"github.com/zubairhamed/iot-suite-sdk-go/hawkbit/examples"
-	"github.com/zubairhamed/iot-suite-sdk-go/hawkbit"
-	"log"
+	. "github.com/zubairhamed/iot-suite-sdk-go/hawkbit"
 	"fmt"
-	"sync"
 )
 
 func main() {
-	var TENANT_ID = "xx"
-	var TARGET_ID = "xx"
-	var TARGET_SECURITY_TOKEN = "xx"
+	var TENANT_ID = "d683638a-8d35-49c5-bacd-2075f1216df8"
+	var TARGET_ID = "ZubairMacbookPro"
+	var TARGET_SECURITY_TOKEN = "PXZMtJQ05zp75HenVOPognki0D1WNBCa"
 
 	fmt.Println("Connecting to Hawkbit..")
 
 	conn, err := ddi.Dial(example.HAWKBIT_HTTP_ENDPOINT,
 		TENANT_ID,
 		TARGET_ID,
-		TARGET_SECURITY_TOKEN)
+		TARGET_SECURITY_TOKEN,
+		nil,
+	)
 
 	if err != nil {
 		fmt.Println("Uh oh, error occured connecting to HawkBit..")
 		panic(err.Error())
 	}
 
-	updateEvents := make(chan *hawkbit.Message)
+	updateEvents := make(chan *Message)
 
 	fmt.Println("Waiting for updates..")
-	conn.WaitForUpdate(updateEvents)
+	conn.WaitForUpdates(updateEvents)
 
 	for {
 		select {
-		case updateMsg, _ := <- updateEvent:
+		case updateMsg, _ := <- updateEvents:
 			handleUpdateEvent(conn, updateMsg)
 		}
 	}
 }
 
-func handleUpdateEvent(conn Connection, msg Message) {
+func handleUpdateEvent(conn *ddi.HawkbitDDIConnection, msg *Message) {
 	fmt.Println("An update was found. Let's update!")
 
-	actionId := msg.GetActionId()
+	actionId := msg.ActionId
 
 	// Tell the mothership that we're proceeding to update
-	conn.UpdateActionStatus(actionId, hawkbit.STATUS_EXEC_PROCEEDING, hawkbit.STATUS_RESULT_NONE)
+	conn.UpdateActionStatus(actionId, STATUS_EXEC_PROCEEDING, STATUS_RESULT_NONE)
 
-	// Get all downloadable chunks for this update
-	chunks := msg.GetDownloadableChunks()
+	// Create a channel to be notified of downloaded artifacts
+	ch := make(chan *Artifact)
 
-	artifacts := []*hawkbit.Artifact
-	var wg sync.WaitGroup
-	for _, c := range chunks {
-		fmt.Println("Downloading chunk part", c.Part, ", name", c.Name, "and version", c.Version)
-		wg.Add(len(c.Artifacts))
-		for _, a := range c.Artifacts {
-			downloadHref := a.Links.DownloadHttp.Href
-			fileName := a.Filename
+	// Download all artifacts, specifying to download artifacts in parallel
+	conn.DownloadArtifacts(ch, true)
 
-			// dereference pointer
-			artifact := *a
+	// An array to store all our downloaded content
+	downloadedArtifacts := []*Artifact{}
 
-			// Download artifact binaries
-			go func() {
-				defer wg.Done()
-				log.Println("<<<<<< Downloading Artifact", fileName, " @ ", downloadHref)
-				if client.DownloadArtifact(&artifact) == nil {
-					log.Println("++++++ Downloaded HawkBit Artifact ", fileName, "of size", len(artifact.Content))
-
-					// Save this artifact to list for use later
-					artifacts = append(artifacts, artifact)
+	// Wait till all downloads have completed.
+	for {
+		select {
+			case artifact, closed := <-ch:
+				if closed {
+					fmt.Println("Download of artifacts completed.")
+					// Channel was closed, meaning update has completed, so let's get outta here
+					break
 				} else {
-					log.Println("Uh oh, we failed to download an artifact..", fileName, " @ ", downloadHref)
+					// When an artifact has been completed, save its content to an array
+					fmt.Println("++++++ Downloaded HawkBit Artifact ", artifact.Filename, "of size", len(artifact.Content))
+					downloadedArtifacts = append(downloadedArtifacts, artifact)
 				}
-			}()
 		}
 	}
-	wg.Wait()
-	fmt.Println("Download all completed.")
-	startUpdating(artifacts)
+	// With all the content of artifacts we've collected, let's start an update
+	startUpdating(downloadedArtifacts)
 }
 
-func startUpdating(a []*hawkbit.Artifact) {
+func startUpdating(a []*Artifact) {
 	fmt.Println("Got", len(a), "artifacts. Start doing some fancy updates with them ..")
 }
 
