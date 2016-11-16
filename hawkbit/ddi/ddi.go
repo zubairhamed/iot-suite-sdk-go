@@ -13,7 +13,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
-	. "github.com/zubairhamed/iot-suite-sdk-go.bak/hawkbit/hawkbit"
+	. "github.com/zubairhamed/iot-suite-sdk-go/hawkbit"
 )
 
 func NewDefaultHawkbitClient(server, tenant, target, targetToken string) HawkbitClient {

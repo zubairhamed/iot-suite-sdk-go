@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/hawkbit/hawkbit"
-	"github.com/zubairhamed/iot-suite-sdk-go.bak/hawkbit/hawkbit/ddi"
+	"github.com/zubairhamed/iot-suite-sdk-go/hawkbit"
+	"github.com/zubairhamed/iot-suite-sdk-go/hawkbit/ddi"
 )
 
 var PLAYER_PROCESS *exec.Cmd
