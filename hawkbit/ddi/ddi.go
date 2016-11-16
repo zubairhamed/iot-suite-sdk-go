@@ -16,6 +16,10 @@ import (
 	. "github.com/zubairhamed/iot-suite-sdk-go/hawkbit"
 )
 
+func Dial(endpoint, tenant, target, token string, cfg *hawkbit.Configuration) (Connection, error) {
+
+}
+
 func NewDefaultHawkbitClient(server, tenant, target, targetToken string) HawkbitClient {
 	return &HawkbitDDIClient{
 		server:        server,
