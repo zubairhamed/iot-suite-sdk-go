@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/zubairhamed/paho.mqtt.golang"
 	"time"
 	"fmt"
 	"os"
 	"github.com/zubairhamed/iot-suite-sdk-go/things/examples"
 	"github.com/zubairhamed/iot-suite-sdk-go/things/ws"
 	"github.com/zubairhamed/iot-suite-sdk-go/things"
+	"github.com/eclipse/paho.mqtt.golang"
 )
 
 // Subscribes to an MQTT Broker, listening to a specific topic
