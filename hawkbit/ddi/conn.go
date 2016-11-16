@@ -10,10 +10,10 @@ import (
 	"io"
 	"crypto/tls"
 	"net/http"
-	"log"
 	"io/ioutil"
 	"encoding/json"
 	"strings"
+	"sync"
 )
 
 type HawkbitDDIConnection struct {
@@ -26,9 +26,9 @@ type HawkbitDDIConnection struct {
 	updateStarted bool
 }
 
-func (c *HawkbitDDIConnection) WaitForUpdates(ch chan *Message) {
+func (c *HawkbitDDIConnection) WaitForUpdates(ch chan *Message, pollingSecs int) {
 	go func() {
-		ticker := time.NewTicker(time.Millisecond * 3000)
+		ticker := time.NewTicker(time.Second * time.Duration(pollingSecs))
 		for range ticker.C {
 			if !c.updateStarted {
 				u, a := c.ReadyForUpdate()
@@ -79,16 +79,17 @@ func (c *HawkbitDDIConnection) UpdateActionStatus(actionId string, e ExecStatus,
 
 		return
 	}
-
 	return
 }
 
-func (c *HawkbitDDIConnection) GetDownloadableChunks() (chunks []*Chunk) {
+func (c *HawkbitDDIConnection) GetDownloadableChunks() (chunks []*Chunk, err error){
 	d, err := c.GetDeploymentBase()
 	if err != nil {
-		log.Println(err)
+		return
 	}
-	return d.Deployment.Chunks
+
+	chunks = d.Deployment.Chunks
+	return
 }
 
 func (c *HawkbitDDIConnection) GetDeploymentBase() (dbInfo *DeploymentBaseInfo, err error) {
@@ -112,7 +113,6 @@ func (c *HawkbitDDIConnection) GetDeploymentBase() (dbInfo *DeploymentBaseInfo, 
 
 func (c *HawkbitDDIConnection) DownloadArtifact(a *Artifact) (err error) {
 	httpUrl := a.Links.DownloadHttp.Href
-
 	content, err := c.doGet(httpUrl)
 	if err != nil {
 		return
@@ -141,8 +141,53 @@ func (c *HawkbitDDIConnection) ReadyForUpdate() (updateNow bool, actionId string
 	return
 }
 
-func (c *HawkbitDDIConnection) DownloadArtifacts(ch chan *Artifact, parallel bool) {
+func (c *HawkbitDDIConnection) DownloadArtifacts(downloadingCh chan Artifact, downloadedCh chan Artifact, parallel bool) (count int, err error){
+	chunks, err := c.GetDownloadableChunks()
+	if err != nil {
+		return
+	}
+	count = 0
+	for _, chunk := range chunks {
+		count += len(chunk.Artifacts)
+	}
 
+	go func() {
+		var wgChunk sync.WaitGroup
+		wgChunk.Add(len(chunks))
+		for _, chunk := range chunks {
+			var wgArtifacts sync.WaitGroup
+			wgArtifacts.Add(len(chunk.Artifacts))
+			go func() {
+				for _, artifact := range chunk.Artifacts {
+
+					// dereference pointer
+					artifact := *artifact
+
+					if parallel {
+						go func() {
+							c.doDownloadArtifact(artifact, downloadingCh, downloadedCh)
+							wgArtifacts.Done()
+						}()
+					} else {
+						c.doDownloadArtifact(artifact, downloadingCh, downloadedCh)
+						wgArtifacts.Done()
+					}
+				}
+			}()
+			wgArtifacts.Wait()
+			wgChunk.Done()
+		}
+		wgChunk.Wait()
+		c.updateStarted = false
+	}()
+	return
+}
+
+func (c *HawkbitDDIConnection) doDownloadArtifact(a Artifact, downloadingCh chan Artifact, downloadedCh chan Artifact) {
+	downloadingCh <- a
+	if c.DownloadArtifact(&a) == nil {
+		downloadedCh <- a
+	}
 }
 
 func (c *HawkbitDDIConnection) GetActions() (ar *Action, err error) {
