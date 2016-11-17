@@ -57,13 +57,15 @@ func (c ThingsRestConnection) createHttpClientInstance() *http.Client {
 	tr := &http.Transport{}
 
 	cfg := c.Configuration
-	if cfg.Proxy != "" {
-		u, _ := url.Parse(cfg.Proxy)
-		tr.Proxy = http.ProxyURL(u)
-	}
+	if cfg != nil {
+		if cfg.Proxy != "" {
+			u, _ := url.Parse(cfg.Proxy)
+			tr.Proxy = http.ProxyURL(u)
+		}
 
-	if (cfg.SkipSslVerify) {
-		tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		if (cfg.SkipSslVerify) {
+			tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		}
 	}
 
 	cli.Transport = tr

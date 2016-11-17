@@ -1,11 +1,12 @@
 package main
 
 import (
-	"log"
 	"github.com/zubairhamed/iot-suite-sdk-go/things/client"
 	"github.com/zubairhamed/iot-suite-sdk-go/things/ws"
 	"github.com/zubairhamed/iot-suite-sdk-go/things/examples"
 	"github.com/zubairhamed/iot-suite-sdk-go/things"
+	"time"
+	"fmt"
 )
 
 func main() {
@@ -14,6 +15,7 @@ func main() {
 		// Proxy: "http://localhost:3128",
 	}
 
+	fmt.Println("### Connecting to Things via WebSockets..")
 	conn, err := ws.Dial(
 		examples.ENDPOINT_URL_WS,
 		examples.USERNAME,
@@ -25,6 +27,7 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+	fmt.Println("### Connected.")
 
 	obsEvents := make(chan *things.WSMessage)
 	obsDelete := make(chan *things.WSMessage)
@@ -32,30 +35,36 @@ func main() {
 	obsUpdate := make(chan *things.WSMessage)
 
 	conn.ObserveEvents(obsEvents)
-	log.Println("Start Observing all events")
+	fmt.Println("### Start Observing all events")
 
 	conn.ObserveCreatedEvents(obsCreate)
-	log.Println("Start Observing created events")
+	fmt.Println("### Start Observing created events")
 
 	conn.ObserveDeletedEvents(obsDelete)
-	log.Println("Start Observing deleted events")
+	fmt.Println("### Start Observing deleted events")
 
 	conn.ObserveUpdateEvents(obsUpdate)
-	log.Println("Start Observing updated events")
+	fmt.Println("### Start Observing updated events")
+
+	tickChan := time.NewTicker(time.Second * 60).C
 
 	for {
 		select {
 		case obsMsg, _ := <-obsEvents:
-			log.Println(">> Event", obsMsg.Topic)
+			fmt.Println(">> Incoming Event       ", obsMsg.Topic)
 
 		case obsMsg, _ := <-obsDelete:
-			log.Println(">> Delete Event", obsMsg.Topic)
+			fmt.Println(">> Incoming Delete Event", obsMsg.Topic)
 
 		case obsMsg, _ := <-obsCreate:
-			log.Println(">> Create Event", obsMsg.Topic)
+			fmt.Println(">> Incoming Create Event", obsMsg.Topic)
 
 		case obsMsg, _ := <-obsUpdate:
-			log.Println(">> Update Event", obsMsg.Topic)
+			fmt.Println(">> Incoming Update Event", obsMsg.Topic)
+
+		case <- tickChan:
+			examples.PrintMemoryStats()
 		}
 	}
 }
+
