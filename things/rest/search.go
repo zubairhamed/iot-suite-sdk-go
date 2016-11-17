@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	. "github.com/zubairhamed/iot-suite-sdk-go/things"
+	"fmt"
 )
 
 func (c ThingsRestConnection) Search(ns string, q Query) (sr *SearchResults, err error) {
 	var qURL = "%s/search/things%s"
 	qURL = c.createUrl(qURL, c.Endpoint, q.ToString())
-
+	
 	resp, err := c.doRequest("GET", qURL, nil)
 	if err != nil {
 		return

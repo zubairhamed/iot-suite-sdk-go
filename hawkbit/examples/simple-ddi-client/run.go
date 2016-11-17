@@ -6,6 +6,8 @@ import (
 	. "github.com/zubairhamed/iot-suite-sdk-go/hawkbit"
 	"fmt"
 	"sync"
+	"time"
+	"github.com/zubairhamed/iot-suite-sdk-go"
 )
 
 func main() {
@@ -33,10 +35,16 @@ func main() {
 	fmt.Println("Waiting for updates.. Polling set to", poll, "seconds")
 	conn.WaitForUpdates(updateEvents, poll)
 
+	// Channel for printing memory stats
+	tickChan := time.NewTicker(time.Second * 60).C
+
 	for {
 		select {
 		case updateMsg, _ := <- updateEvents:
 			handleUpdateEvent(conn, updateMsg)
+
+		case <- tickChan:
+			common.PrintMemoryStats()
 		}
 	}
 }

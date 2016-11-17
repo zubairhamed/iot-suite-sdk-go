@@ -295,7 +295,6 @@ func (c *ThingsWebSocketConnection) startPing() {
 	for {
 		select {
 		case <-ticker.C:
-			fmt.Println("PING")
 			if err := c.wsConn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 				return
 			}

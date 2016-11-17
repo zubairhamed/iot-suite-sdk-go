@@ -7,6 +7,7 @@ import (
 	"github.com/zubairhamed/iot-suite-sdk-go/things"
 	"time"
 	"fmt"
+	"github.com/zubairhamed/iot-suite-sdk-go"
 )
 
 func main() {
@@ -63,7 +64,7 @@ func main() {
 			fmt.Println(">> Incoming Update Event", obsMsg.Topic)
 
 		case <- tickChan:
-			examples.PrintMemoryStats()
+			common.PrintMemoryStats()
 		}
 	}
 }
