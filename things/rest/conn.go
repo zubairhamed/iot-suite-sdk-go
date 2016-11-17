@@ -13,7 +13,7 @@ import (
 func Dial(ep, user, pass, token string, cfg *client.Configuration) (RestConnection, error) {
 	return &ThingsRestConnection{
 		ThingsConnection: client.ThingsConnection{
-			Endpoint:  ep + "/ws/1",
+			Endpoint:  ep + "/cr/1",
 			Username:  user,
 			Password:  pass,
 			Token:     token,
