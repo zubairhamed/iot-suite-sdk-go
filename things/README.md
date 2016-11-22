@@ -3,6 +3,30 @@
 This is a lightweight, simple to use, low memory footprint but fast client for IoT Things.
 This includes both REST and WebSockets-based APIs.
 
+## Installing/Getting
+Install Go 1.7.x on your platform of choice. Go supports cross-compiling its binaries to other platforms natively.
+No cross-compilation tools are required. 
+
+After installing Go, you can get this SDK package by the following command in terminal/command line:
+
+go get github.com/zubairhamed/iot-suite-sdk-go
+
+This would download the package into your GOPATH
+
+## Compiling the examples
+
+The Things Go SDK has been tested on the following platforms.
+
+### Raspberry Pi/Intel Edison/Beaglebone
+env GOOS=linux GOARCH=arm go build
+
+### Mindstorms EV3 with EV3Dev
+env GOARCH=arm GOOS=linux GOARM=5 go build
+
+### FisherTechnik MicroController
+
+### C.H.I.P (Next Thing Co.)
+
 ## Usage
 ### REST API
 ``` go
