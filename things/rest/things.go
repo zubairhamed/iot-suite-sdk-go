@@ -10,6 +10,7 @@ import (
 
 	"strings"
 	. "github.com/zubairhamed/iot-suite-sdk-go/things"
+	"log"
 )
 
 func (c ThingsRestConnection) Get(ids string) (ts []*Thing, err error) {
@@ -41,6 +42,8 @@ func (c ThingsRestConnection) Get(ids string) (ts []*Thing, err error) {
 	if err != nil {
 		return
 	}
+
+	log.Println("Body", string(body))
 
 	if multi {
 		err = json.Unmarshal(body, &ts)

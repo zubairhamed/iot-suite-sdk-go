@@ -12,7 +12,7 @@ import (
 func main() {
 	cfg := &client.Configuration{
 		SkipSslVerify: true,
-		// Proxy: "http://localhost:3128",
+		Proxy: "http://localhost:3128",
 	}
 
 	conn, err := ws.Dial(

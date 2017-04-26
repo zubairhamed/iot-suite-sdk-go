@@ -12,7 +12,7 @@ func main() {
 	// Use Proxy
 	cfg := &client.Configuration{
 		SkipSslVerify: true,
-		// Proxy: "http://localhost:3128",
+		Proxy: "http://localhost:3128",
 	}
 
 	// Get an instance of a rest connection to Things

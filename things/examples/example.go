@@ -5,11 +5,11 @@ import (
 )
 
 // For IoT Things
-var ENDPOINT_URL_REST = "https://things-int.apps.bosch-iot-cloud.com"
-var ENDPOINT_URL_WS = "wss://things-int.apps.bosch-iot-cloud.com"
-var USERNAME = "Zubair"
-var PASSWORD = "ZubairPw1!"
-var APITOKEN = "c8746ff31faf46dabf68eb7188df1694"
+var ENDPOINT_URL_REST = "https://things.apps.bosch-iot-cloud.com"
+var ENDPOINT_URL_WS = "wss://things.apps.bosch-iot-cloud.com"
+var USERNAME = "GoTest"
+var PASSWORD = "GoTestPw1!"
+var APITOKEN = "b7dca5d42d1245d6b5ee06e3b3f1a044"
 var DEFAULT_CLIENT_CONFIG = &client.Configuration{
 	SkipSslVerify: true,
 }

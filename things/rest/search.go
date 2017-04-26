@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	. "github.com/zubairhamed/iot-suite-sdk-go/things"
-	"fmt"
 )
 
 func (c ThingsRestConnection) Search(ns string, q Query) (sr *SearchResults, err error) {
